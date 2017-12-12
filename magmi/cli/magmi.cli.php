@@ -9,11 +9,10 @@
  *
  */
 require_once(dirname(dirname(__FILE__)) . "/inc/magmi_defs.php");
-require_once('magmi_loggers.php');
 $script = array_shift($argv);
 
 /**
- * Builing option dictionnary from command line
+ * Builing option dictionary from command line
  *
  * @param array $argv
  * @return dictionnary with option list
