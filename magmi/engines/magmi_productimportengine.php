@@ -1172,7 +1172,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             unset($item);
             $res["last"] = 1;
         }
-
         unset($item);
         $this->updateSkuStats($res);
 
@@ -1225,11 +1224,13 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $attributeName = 'supplier_code';
             $attributeValue = $item[$attributeName];
             $itemids = $this->getItemIdsByAttribute($attributeValue);
+            $this->_curitemids = $itemids;
         }
 
         // extract product id & attribute set id
         $pid = $itemids["pid"];
         $asid = $itemids["asid"];
+        $currentSKU = $itemids['sku'];
 
         $isnew = false;
         if (isset($pid) && $this->mode == "xcreate")
@@ -1279,6 +1280,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             }
             // case for xupdate
             if ($this->mode === 'xupdate') {
+                $item['sku'] = $currentSKU;
                 $this->updateProduct($item, $pid, $itemids['__attr']);
             } else {
                 $this->updateProduct($item, $pid);
@@ -1289,6 +1291,11 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         {
             $basemeta = array("product_id" => $pid, "new" => $isnew, "same" => $this->_same, "asid" => $asid);
             $fullmeta = array_merge($basemeta, $itemids);
+
+            // remove the attributes' data which should not been updated if product already existed
+            if ($this->mode === 'xupdate') {
+                $this->removeKeys($item, $this->_curitemids['__attr']);
+            }
 
             if (!$this->callPlugins("itemprocessors", "preprocessItemAfterId", $item, $fullmeta))
             {
@@ -1437,19 +1444,21 @@ class Magmi_ProductImportEngine extends Magmi_Engine
     {
         $mainTable = $this->tablename('catalog_product_entity');
         $joinTableName = $this->tablename('catalog_product_entity_varchar');
-        $query  = "SELECT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id WHERE $joinTableName.value = '$attributeValue'";
+        $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id WHERE $joinTableName.value = '$attributeValue'";
         // debug:
         // print_r($query);die();
         $result = $this->selectAll($query);
-        // print_r($result);die();
         if (count($result)) {
             $pids = $result[0];
-            $pids['__new'] = false;
+            $pids["__new"] = false;
             // TODO: make this dynamic
             $options = [
                 'upc',
                 'name',
-                'rrp'
+                'rrp',
+                'price',
+                'msrp',
+                'qty'
             ];
             $pids['__attr'] = $options;
             return $pids;
