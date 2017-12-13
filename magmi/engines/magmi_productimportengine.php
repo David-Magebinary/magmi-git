@@ -955,7 +955,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->log("Skus imported OK:" . $this->_skustats["ok"] . "/" . $this->_skustats["nsku"], "info");
             if ($this->_skustats["ko"] > 0)
             {
-                $this->log("Skus imported KO:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
+                $this->log("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
             }
         }
         else
@@ -1203,7 +1203,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             throw new Exception("MAGMI_RUN_CANCELED");
         }
         // first step
-
         if (!$this->callPlugins("itemprocessors", "processItemBeforeId", $item))
         {
             return false;
@@ -1217,8 +1216,16 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         }
         // handle "computed" ignored columns
         $this->handleIgnore($item);
-        // get Item identifiers in magento
-        $itemids = $this->getItemIds($item);
+
+        if ($this->mode !== 'xupdate') {
+            // get Item identifiers in magento
+            $itemids = $this->getItemIds($item);
+        } else {
+            // TODO : make this dynamic
+            $attributeName = 'supplier_code';
+            $attributeValue = $item[$attributeName];
+            $itemids = $this->getItemIdsByAttribute($attributeValue);
+        }
 
         // extract product id & attribute set id
         $pid = $itemids["pid"];
@@ -1270,7 +1277,12 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                     }
                 }
             }
-            $this->updateProduct($item, $pid);
+            // case for xupdate
+            if ($this->mode === 'xupdate') {
+                $this->updateProduct($item, $pid, $itemids['__attr']);
+            } else {
+                $this->updateProduct($item, $pid);
+            }
         }
 
         try
@@ -1342,12 +1354,52 @@ class Magmi_ProductImportEngine extends Magmi_Engine
     }
 
     /**
+     * Update raw product data in magento (catalog_product_entity fields)
+     * @param $item data to update
+     * @param $pid product id
+     */
+    public function updateProduct($item, $pid, $attributes = [])
+    {
+        $tname = $this->tablename('catalog_product_entity');
+        if (isset($item['type']))
+        {
+            $item['type_id'] = $item['type'];
+        }
+        $item['entity_type_id'] = $this->getProductEntityType();
+        $item['updated_at'] = strftime("%Y-%m-%d %H:%M:%S");
+        $columns = array_intersect(array_keys($item), $this->getProdCols());
+        $values = $this->filterkvarr($item, $columns);
+        if (!empty($attributes)) {
+            $this->removeKeys($values, $attributes);
+        }
+        $sql = "UPDATE  `$tname` SET " . $this->arr2update($values) . " WHERE entity_id=?";
+        // print_r($sql);die();
+        // print_r(array_merge(array_values($values), array($pid)));die();
+        $this->update($sql, array_merge(array_values($values), array($pid)));
+    }
+
+    /**
+     * [removeKeys description]
+     * @param  [type] &$values    [description]
+     * @param  [type] $attributes [description]
+     * @return [type]             [description]
+     */
+    protected function removeKeys(&$values, $attributes)
+    {
+        foreach ($attributes as $attribute) {
+            if (isset($values[$attribute])) {
+                unset($values[$attribute]);
+            }
+        }
+    }
+
+    /**
      * Fetches item identifiers (attribute_set, type, product id if existing)
      * if the item does not exist, uses the data source , otherwise fetch it from magento db
      * @param $item item to retreive ids for
      * @return array associative array for identifiers
      */
-    public function getItemIds($item)
+     public function getItemIds($item)
     {
         $sku = $item["sku"];
         if (strcmp($sku, $this->_curitemids["sku"]) != 0)
@@ -1373,6 +1425,36 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->onSameSku($sku);
         }
         return $this->_curitemids;
+    }
+
+    /**
+     * [getItemIdsByAttribute description]
+     * @param  string $attributeValue
+     * @param  array  $options
+     * @return [type]
+     */
+    public function getItemIdsByAttribute(string $attributeValue, $options = [])
+    {
+        $mainTable = $this->tablename('catalog_product_entity');
+        $joinTableName = $this->tablename('catalog_product_entity_varchar');
+        $query  = "SELECT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id WHERE $joinTableName.value = '$attributeValue'";
+        // debug:
+        // print_r($query);die();
+        $result = $this->selectAll($query);
+        // print_r($result);die();
+        if (count($result)) {
+            $pids = $result[0];
+            $pids['__new'] = false;
+            // TODO: make this dynamic
+            $options = [
+                'upc',
+                'name',
+                'rrp'
+            ];
+            $pids['__attr'] = $options;
+            return $pids;
+        }
+        return false;
     }
 
     /**
@@ -1474,28 +1556,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             }
         }
         return $this->_prodcols;
-    }
-
-    /**
-     * Update raw product data in magento (catalog_product_entity fields)
-     * @param $item data to update
-     * @param $pid product id
-     */
-    public function updateProduct($item, $pid)
-    {
-        $tname = $this->tablename('catalog_product_entity');
-        if (isset($item['type']))
-        {
-            $item['type_id'] = $item['type'];
-        }
-        $item['entity_type_id'] = $this->getProductEntityType();
-        $item['updated_at'] = strftime("%Y-%m-%d %H:%M:%S");
-        $columns = array_intersect(array_keys($item), $this->getProdCols());
-        $values = $this->filterkvarr($item, $columns);
-
-        $sql = "UPDATE  `$tname` SET " . $this->arr2update($values) . " WHERE entity_id=?";
-
-        $this->update($sql, array_merge(array_values($values), array($pid)));
     }
 
     public function checkstore(&$item, $pid, $isnew)

@@ -127,6 +127,7 @@ if (!$eplconf->hasSection('PLUGINS_DATASOURCES')) {
 					<option value="update">Update existing items only and skip new ones</option>
 					<option value="create">Create new items and update existing ones</option>
 					<option value="xcreate">Create new items only and skip existing ones</option>
+					<option value="xupdate">Create new items by certain attribute and update existing ones only with defined attributes</option>
 				</select>
 			</div>
 		</div>

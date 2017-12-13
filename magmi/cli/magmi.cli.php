@@ -86,14 +86,14 @@ $options = buildOptions($argv);
 // Getting engine
 $importer = getEngineInstance($options);
 if (isset($importer)) {
-    $inifile=isset($options['config'])? $options['config']:null;
+    $inifile = isset($options['config']) ? $options['config'] : null;
     if (isset($inifile)) {
         require_once('magmi_config.php');
-        $conf=Magmi_Config::getInstance();
+        $conf = Magmi_Config::getInstance();
         $conf->load($options['config']);
     }
     // if logger set, use it or use FileLogger by default
-    $loggerclass = isset($options['logger']) ? $options['logger'] : "FileLogger";
+    $loggerclass = isset($options['logger']) ? $options['logger'] : "CLILogger";
     $importer->setLogger(new $loggerclass());
     // a chain is a multiple profile run with the following syntax
     // [profilename]:[modename],[profilename]:[modename]
