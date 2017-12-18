@@ -1225,8 +1225,10 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $attributeValue = $item[$attributeName];
             $itemids = $this->getItemIdsByAttribute($attributeValue);
             $this->_curitemids = $itemids;
+            if (!$itemids) {
+                $itemids = $this->getItemIds($item);
+            }
         }
-
         // extract product id & attribute set id
         $pid = $itemids["pid"];
         $asid = $itemids["asid"];
@@ -1293,7 +1295,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $fullmeta = array_merge($basemeta, $itemids);
 
             // remove the attributes' data which should not been updated if product already existed
-            if ($this->mode === 'xupdate') {
+            if ($this->mode === 'xupdate' && isset($this->_curitemids['__attr'])) {
                 $this->removeKeys($item, $this->_curitemids['__attr']);
             }
 

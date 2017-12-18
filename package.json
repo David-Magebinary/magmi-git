@@ -1,5 +1,5 @@
 {
-  "name": "dweeves/magmi",
+  "name": "dweevesmagmi",
   "description": "Magento Mass Importer",
   "main": "gulpfile.js",
   "scripts": {
