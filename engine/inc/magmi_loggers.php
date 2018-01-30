@@ -58,3 +58,24 @@ class CLILogger extends Magmi_Logger
         echo("$type:$data\n");
     }
 }
+
+
+class BinaryConnectLogger extends Magmi_Logger
+{
+    protected $fileName = __DIR__ . '/../../../var/log/synnex.log';
+
+    public function log($data, $type = null)
+    {
+        date_default_timezone_set('Pacific/Auckland');
+        $f = fopen($this->fileName, "a");
+        if ($f == false) {
+            throw new Exception("CANNOT WRITE PROGRESS TO SYNNEX LOG FILE ");
+        }
+        $data = preg_replace("/(\r|\n|\r\n)/", "<br>", $data);
+        if ($type == null) {
+            $type = "default";
+        }
+        fwrite($f, "[". date('Y-m-d H:i:s') ."]" . "$type:$data\n");
+        fclose($f);
+    }
+}
