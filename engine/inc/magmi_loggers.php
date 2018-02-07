@@ -62,14 +62,17 @@ class CLILogger extends Magmi_Logger
 
 class BinaryConnectLogger extends Magmi_Logger
 {
-    protected $fileName = __DIR__ . '/../../../var/log/synnex.log';
+    protected $fileName = '/tmp/magmi.log';
 
     public function log($data, $type = null)
     {
         date_default_timezone_set('Pacific/Auckland');
         $f = fopen($this->fileName, "a");
         if ($f == false) {
-            throw new Exception("CANNOT WRITE PROGRESS TO SYNNEX LOG FILE ");
+            fwrite($f, '');
+             if (!file_exists($this->fileName)) {
+                throw new Exception("CANNOT WRITE MAGMI PROGRESS FILE ");
+            }
         }
         $data = preg_replace("/(\r|\n|\r\n)/", "<br>", $data);
         if ($type == null) {
