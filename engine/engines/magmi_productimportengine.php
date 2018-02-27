@@ -1460,7 +1460,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'rrp',
                 'price',
                 'msrp',
-                'qty'
+                'qty',
+                'categories'
             ];
             $pids['__attr'] = $options;
             return $pids;
