@@ -1453,6 +1453,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         if (count($result)) {
             $pids = $result[0];
             $pids["__new"] = false;
+            // Skip these attributes when overriding existing products
             // TODO: make this dynamic
             $options = [
                 'upc',
@@ -1461,7 +1462,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'price',
                 'msrp',
                 'qty',
-                'categories'
+                'categories',
+                'visibility'
             ];
             $pids['__attr'] = $options;
             return $pids;
