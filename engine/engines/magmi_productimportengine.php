@@ -1162,9 +1162,11 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->rollbackTransaction();
             $res["ok"] = false;
             $this->logException($e, "ERROR ON RECORD #$this->_current_row");
+
+            // do not cancel the magmi input
             if ($e->getMessage() == "MAGMI_RUN_CANCELED")
             {
-                $canceled = true;
+                $canceled = false;
             }
         }
         if ($this->isLastItem($item) || $canceled)
