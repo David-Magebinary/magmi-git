@@ -2,7 +2,8 @@
 sftp-config.json
 *.sublime-project
 *.sublime-workspace
-/magmi/state/*
+/engine/state/*
+/engine/conf/*
 #!/magmi/state/dummy.txt
 /node_modules/*
 #!/node_modules/bootstrap

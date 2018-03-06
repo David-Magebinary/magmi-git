@@ -12,6 +12,7 @@ require_once(dirname(__DIR__) . "/inc/magmi_defs.php");
 /* use external file for db helper */
 require_once("magmi_engine.php");
 require_once("magmi_valueparser.php");
+require_once("magmi_message.php");
 
 /**
  *
@@ -953,6 +954,9 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->exitImport();
             $this->reportStats($this->_current_row, $tstart, $tdiff, $lastdbtime, $lastrec);
             $this->log("Skus imported OK:" . $this->_skustats["ok"] . "/" . $this->_skustats["nsku"], "info");
+            $this->log("Summary of this import:" . '\r\n');
+            $this->log(Magmi_Message::getMessage());
+            $this->log(Magmi_Message::getErrorMessage());
             if ($this->_skustats["ko"] > 0)
             {
                 $this->log("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
@@ -1154,6 +1158,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             }
             else
             {
+                Magmi_Message::addErrorMessage("ERROR - RECORD #$this->_current_row - INVALID RECORD", "error");
                 $this->log("ERROR - RECORD #$this->_current_row - INVALID RECORD", "error");
             }
             // intermediary measurement
@@ -1161,6 +1166,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         {
             $this->rollbackTransaction();
             $res["ok"] = false;
+            Magmi_Message::addErrorMessage("ERROR ON RECORD #$this->_current_row");
             $this->logException($e, "ERROR ON RECORD #$this->_current_row");
 
             // do not cancel the magmi input
@@ -1212,6 +1218,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         // check if sku has been reset
         if (!isset($item["sku"]) || trim($item["sku"]) == '')
         {
+            Magmi_Message::addErrorMessage('No sku info found for record #' . $this->_current_row, "error");
             $this->log('No sku info found for record #' . $this->_current_row, "error");
             return false;
         }
@@ -1387,6 +1394,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         // print_r($sql);die();
         // print_r(array_merge(array_values($values), array($pid)));die();
         $this->update($sql, array_merge(array_values($values), array($pid)));
+        Magmi_Message::addMessage(sprintf("Item %s has been updated.\n", $item['sku']));
     }
 
     /**
@@ -1553,6 +1561,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $values = $this->filterkvarr($item, $columns);
         $sql = "INSERT INTO `$tname` (" . implode(",", $columns) . ") VALUES (" . $this->arr2values($columns) . ")";
         $lastid = $this->insert($sql, array_values($values));
+        Magmi_Message::addMessage(sprintf("Item #SKU: %s has been created" . '\r\n', $item['sku']));
         return $lastid;
     }
 
