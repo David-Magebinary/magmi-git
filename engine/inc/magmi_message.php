@@ -13,7 +13,7 @@ class Magmi_Message
 
     public static function addMessage($message)
     {
-        static::$message .= $message;
+        static::$message .= PHP_EOL . $message;
     }
 
     public static function getMessage()
@@ -23,7 +23,7 @@ class Magmi_Message
 
     public static function addErrorMessage($errMessage)
     {
-        static::$errorMessage .= $errMessage;
+        static::$errorMessage .= PHP_EOL . $errMessage;
     }
 
     public static function getErrorMessage()
