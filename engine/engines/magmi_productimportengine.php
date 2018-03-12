@@ -1198,7 +1198,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
 
     public function generateVendorSku($item)
     {
-        $item['sku'] = 'VI' . '-' . $item['supplier_code'] . '-' . $item['upc'];
+        $postfix = $item['upc'] ? '-' . $item['upc'] : '';
+        $item['sku'] = 'VI' . '-' . $item['supplier_code'] . $postfix;
         return $item;
     }
 
