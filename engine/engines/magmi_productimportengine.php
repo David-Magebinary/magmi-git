@@ -1196,6 +1196,12 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $tdiff = microtime(true);
     }
 
+    public function generateVendorSku($item)
+    {
+        $item['sku'] = 'VI' . '-' . $item['supplier_code'] . '-' . $item['upc'];
+        return $item;
+    }
+
     /**
      * full import workflow for item
      *
@@ -1222,6 +1228,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->log('No sku info found for record #' . $this->_current_row, "error");
             return false;
         }
+
         // handle "computed" ignored columns
         $this->handleIgnore($item);
 
@@ -1233,8 +1240,11 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $attributeName = 'supplier_code';
             $attributeValue = $item[$attributeName];
             $itemids = $this->getItemIdsByAttribute($attributeValue);
+
             $this->_curitemids = $itemids;
             if (!$itemids) {
+                // modify sku when create new products, to fix confliction of SKU and supplier code
+                $item = $this->generateVendorSku($item);
                 $itemids = $this->getItemIds($item);
             }
         }
@@ -1275,7 +1285,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             // only change attribute sets if disable option is OFF
             if ($this->getProp("GLOBAL", "noattsetupdate", "off") == "off")
             {
-                // if attribute set name is given and changed
+                // if attribute set
+                //  is given and changed
                 // compared to attribute set in db -> change!
                 if (isset($item['attribute_set']))
                 {
@@ -1391,7 +1402,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->removeKeys($values, $attributes);
         }
         $sql = "UPDATE  `$tname` SET " . $this->arr2update($values) . " WHERE entity_id=?";
-        // print_r($sql);die();
         // print_r(array_merge(array_values($values), array($pid)));die();
         $this->update($sql, array_merge(array_values($values), array($pid)));
         Magmi_Message::addMessage(sprintf("Item %s has been updated.\n", $item['sku']));
@@ -1420,9 +1430,10 @@ class Magmi_ProductImportEngine extends Magmi_Engine
      */
      public function getItemIds($item)
     {
-        $sku = $item["sku"];
+        $sku = $item['sku'];
         if (strcmp($sku, $this->_curitemids["sku"]) != 0)
         {
+            $sku .= $item['upc'];
             // try to find item ids in db
             $cids = $this->getProductIds($sku);
             if ($cids !== false)
@@ -1457,6 +1468,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $mainTable = $this->tablename('catalog_product_entity');
         $joinTableName = $this->tablename('catalog_product_entity_varchar');
         $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id WHERE $joinTableName.value = '$attributeValue'";
+
         // debug:
         // print_r($query);die();
         $result = $this->selectAll($query);
@@ -1468,6 +1480,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $options = [
                 'upc',
                 'name',
+                'sku',
                 'rrp',
                 'price',
                 'msrp',
