@@ -1196,13 +1196,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $tdiff = microtime(true);
     }
 
-    public function generateVendorSku($item)
-    {
-        $postfix = $item['upc'] ? '-' . $item['upc'] : '';
-        $item['sku'] = 'VI' . '-' . $item['supplier_code'] . $postfix;
-        return $item;
-    }
-
     /**
      * full import workflow for item
      *
@@ -1245,7 +1238,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->_curitemids = $itemids;
             if (!$itemids) {
                 // modify sku when create new products, to fix confliction of SKU and supplier code
-                $item = $this->generateVendorSku($item);
                 $itemids = $this->getItemIds($item);
             }
         }
@@ -1434,7 +1426,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $sku = $item['sku'];
         if (strcmp($sku, $this->_curitemids["sku"]) != 0)
         {
-            $sku .= $item['upc'];
             // try to find item ids in db
             $cids = $this->getProductIds($sku);
             if ($cids !== false)
