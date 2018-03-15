@@ -889,7 +889,9 @@ class Magmi_ProductImportEngine extends Magmi_Engine
     public function engineRun($params, $forcebuiltin = array())
     {
         $this->log("Import Profile:$this->_profile", "startup");
+        Magmi_Message::addMessage("Import Profile:$this->_profile", "startup");
         $this->log("Import Mode:$this->mode", "startup");
+        Magmi_Message::addMessage("Import Mode:$this->mode", "startup");
         $this->log("step:" . $this->getProp("GLOBAL", "step", 0.5) . "%", "step");
         $this->log("Attributeset update is " . ($this->getProp("GLOBAL", "noattsetupdate", "off") == "on" ? "dis" : "en") . "abled.", "startup");
         //$this->createPlugins($this->_profile, $params);
