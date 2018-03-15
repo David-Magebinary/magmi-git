@@ -18,7 +18,7 @@ class Magmi_Message
 
     public static function getMessage()
     {
-        $this->sendMail(static::$message);
+        self::sendMail(static::$message);
         return static::$message;
     }
 
@@ -29,11 +29,11 @@ class Magmi_Message
 
     public static function getErrorMessage()
     {
-        $this->sendMail(static::$errorMessage);
+        self::sendMail(static::$errorMessage);
         return static::$errorMessage;
     }
 
-    public function sendMail($message)
+    public static function sendMail($message)
     {
         if (isset($message)) {
             $receivers = ["david@magebinary.com"];
