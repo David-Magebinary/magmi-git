@@ -961,7 +961,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             if ($this->_skustats["ko"] > 0)
             {
                 $this->log("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
-                Magmi_Message::addErrorMessage("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
+                Magmi_Message::addMessage("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
             }
         }
         else
@@ -973,7 +973,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         Magmi_StateManager::setState("idle");
 
         $this->log(Magmi_Message::getMessage());
-        $this->log(Magmi_Message::getErrorMessage());
 
         $timers = $this->_timecounter->getTimers();
         $f = fopen(Magmi_StateManager::getStateDir() . "/timings.txt", "w");
@@ -1163,7 +1162,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             }
             else
             {
-                Magmi_Message::addErrorMessage("ERROR - RECORD #$this->_current_row - INVALID RECORD", "error");
+                Magmi_Message::addMessage("ERROR - RECORD #$this->_current_row - INVALID RECORD", "error");
                 $this->log("ERROR - RECORD #$this->_current_row - INVALID RECORD", "error");
             }
             // intermediary measurement
@@ -1171,7 +1170,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         {
             $this->rollbackTransaction();
             $res["ok"] = false;
-            Magmi_Message::addErrorMessage("ERROR ON RECORD #$this->_current_row");
+            Magmi_Message::addMessage("ERROR ON RECORD #$this->_current_row");
             $this->logException($e, "ERROR ON RECORD #$this->_current_row");
 
             // do not cancel the magmi input
