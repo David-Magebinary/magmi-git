@@ -18,6 +18,7 @@ class Magmi_Message
 
     public static function getMessage()
     {
+        $this->sendMail(static::$message);
         return static::$message;
     }
 
@@ -28,18 +29,27 @@ class Magmi_Message
 
     public static function getErrorMessage()
     {
-        if (isset(static::$errorMessage)) {
-            $to = "david@magebinary.com";
-            $subject = date('Y-M-D') . "-vendor-import-error-report";
-
-            // compose headers
-            $headers = "From: playtech.co.nz" . PHP_EOL;
-            $headers .= "Reply-To: david@magebinary.com" . PHP_EOL;
-            $headers .= "X-Mailer: PHP/".phpversion();
-
-            // send email
-            mail($to, $subject, static::$errorMessage, $headers);
-        }
+        $this->sendMail(static::$errorMessage);
         return static::$errorMessage;
+    }
+
+    public function sendMail($message)
+    {
+        if (isset($message)) {
+            $receivers = ["david@magebinary.com"];
+
+            foreach ($receivers as $to) {
+                $to = "david@magebinary.com";
+                $subject = date('Y-M-D-H-I-S') . "-vendor-import-report";
+
+                // compose headers
+                $headers = "From: playtech.co.nz" . PHP_EOL;
+                $headers .= "Reply-To: david@magebinary.com" . PHP_EOL;
+                $headers .= "X-Mailer: PHP/".phpversion();
+
+                // send email
+                mail($to, $subject, $message, $headers);
+            }
+        }
     }
 }
