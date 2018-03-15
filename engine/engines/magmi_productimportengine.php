@@ -956,12 +956,12 @@ class Magmi_ProductImportEngine extends Magmi_Engine
             $this->exitImport();
             $this->reportStats($this->_current_row, $tstart, $tdiff, $lastdbtime, $lastrec);
             $this->log("Skus imported OK:" . $this->_skustats["ok"] . "/" . $this->_skustats["nsku"], "info");
+            Magmi_Message::addMessage("Skus imported OK:" . $this->_skustats["ok"] . "/" . $this->_skustats["nsku"], "info");
             $this->log("Summary of this import:" . '\r\n');
-            $this->log(Magmi_Message::getMessage());
-            $this->log(Magmi_Message::getErrorMessage());
             if ($this->_skustats["ko"] > 0)
             {
                 $this->log("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
+                Magmi_Message::addErrorMessage("Skus imported NOK:" . $this->_skustats["ko"] . "/" . $this->_skustats["nsku"], "warning");
             }
         }
         else
@@ -971,6 +971,9 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $this->callPlugins("datasources,general,itemprocessors", "afterImport");
         $this->log("Import Ended", "end");
         Magmi_StateManager::setState("idle");
+
+        $this->log(Magmi_Message::getMessage());
+        $this->log(Magmi_Message::getErrorMessage());
 
         $timers = $this->_timecounter->getTimers();
         $f = fopen(Magmi_StateManager::getStateDir() . "/timings.txt", "w");
