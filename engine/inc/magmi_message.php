@@ -39,7 +39,6 @@ class Magmi_Message
             $receivers = ["david@magebinary.com"];
 
             foreach ($receivers as $to) {
-                $to = "david@magebinary.com";
                 $subject = date('Y-M-D-H-I-S') . "-vendor-import-report";
 
                 // compose headers
