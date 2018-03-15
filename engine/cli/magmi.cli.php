@@ -9,6 +9,7 @@
  *
  */
 require_once(dirname(dirname(__FILE__)) . "/inc/magmi_defs.php");
+require_once(dirname(dirname(__FILE__)) . "/inc/magmi_message.php");
 $script = array_shift($argv);
 
 /**
@@ -92,6 +93,7 @@ if (isset($importer)) {
         $conf = Magmi_Config::getInstance();
         $conf->load($options['config']);
     }
+    Magmi_Message::addMessage("Start Processing File:" . $options['CSV:filename']);
     // if logger set, use it or use FileLogger by default
     $loggerclass = isset($options['logger']) ? $options['logger'] : "CLILogger";
     $importer->setLogger(new $loggerclass());
