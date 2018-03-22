@@ -1486,7 +1486,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'visibility',
                 'manufacturer',
                 'select_price_mode',
-                'description'
+                'description',
+                'short_description'
             ];
             $pids['__attr'] = $options;
             return $pids;
