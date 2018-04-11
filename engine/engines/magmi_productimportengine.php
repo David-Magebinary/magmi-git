@@ -1461,6 +1461,11 @@ class Magmi_ProductImportEngine extends Magmi_Engine
      */
     public function getItemIdsByAttribute(string $attributeValue, $options = [])
     {
+        if (!$attributeValue) {
+            Magmi_Message::addMessage(sprintf('# %s row has no manufacture code been defined.', $this->getCurrentRow()));
+            return false;
+        }
+
         $mainTable = $this->tablename('catalog_product_entity');
         $joinTableName = $this->tablename('catalog_product_entity_varchar');
         $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id WHERE $joinTableName.value = '$attributeValue'";
