@@ -1406,7 +1406,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $sql = "UPDATE  `$tname` SET " . $this->arr2update($values) . " WHERE entity_id=?";
         // print_r(array_merge(array_values($values), array($pid)));die();
         $this->update($sql, array_merge(array_values($values), array($pid)));
-        Magmi_Message::addMessage(sprintf("Item %s has been updated.\n", $item['sku']));
+        // Magmi_Message::addMessage(sprintf("Item %s has been updated.\n", $item['sku']));
     }
 
     /**
