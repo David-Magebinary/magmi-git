@@ -1492,7 +1492,13 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'manufacturer',
                 'select_price_mode',
                 'description',
-                'short_description'
+                'short_description',
+                'synnex_image_url',
+                'ingram_image_url',
+                'dove_image_url',
+                'anyware_image_url',
+                'dicker_image_url',
+                'exeed_image_url'
             ];
             $pids['__attr'] = $options;
             return $pids;
@@ -1730,6 +1736,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 {
                     $scope = 0;
                 }
+
+                Magmi_Message::addMessage(sprintf('Import Store Id: %i', $scope));
 
                 $store_ids = $this->getItemStoreIds($item, $scope);
 
