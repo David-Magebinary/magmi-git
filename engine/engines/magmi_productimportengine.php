@@ -1737,8 +1737,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                     $scope = 0;
                 }
 
-                Magmi_Message::addMessage(sprintf('Import Store Id: %i', $scope));
-
                 $store_ids = $this->getItemStoreIds($item, $scope);
 
 
