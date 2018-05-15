@@ -1498,7 +1498,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'dove_image_url',
                 'anyware_image_url',
                 'dicker_image_url',
-                'exeed_image_url'
+                'exeed_image_url',
+                'vendor_image_description_url'
             ];
             $pids['__attr'] = $options;
             return $pids;
