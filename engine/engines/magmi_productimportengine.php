@@ -1492,6 +1492,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'manufacturer',
                 'select_price_mode',
                 'description',
+                'attribute_set',
                 'short_description',
                 'synnex_image_url',
                 'ingram_image_url',
