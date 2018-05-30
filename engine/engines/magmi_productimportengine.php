@@ -1502,7 +1502,11 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'exeed_image_url',
                 'vendor_image_description_url',
                 'status',
-                'is_eol'
+                'is_eol',
+                'visibility',
+                'tax_class_id',
+                'is_in_stock',
+                'attribute_set'
             ];
             $pids['__attr'] = $options;
             return $pids;
