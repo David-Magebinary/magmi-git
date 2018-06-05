@@ -1506,7 +1506,8 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'visibility',
                 'tax_class_id',
                 'is_in_stock',
-                'attribute_set'
+                'attribute_set',
+                'warranty'
             ];
             $pids['__attr'] = $options;
             return $pids;
