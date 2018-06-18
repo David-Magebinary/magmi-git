@@ -1243,7 +1243,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 return false;
             }
 
-            $itemids = $this->getItemIdsByAttribute($attributeValue);
+            $itemids = $this->getItemIdsByAttribute($attributeValue, $attributeName);
             $this->_curitemids = $itemids;
             if (!$itemids) {
                 // modify sku when create new products, to fix confliction of SKU and supplier code
@@ -1464,11 +1464,13 @@ class Magmi_ProductImportEngine extends Magmi_Engine
      * @param  array  $options
      * @return [type]
      */
-    public function getItemIdsByAttribute(string $attributeValue, $options = [])
+    public function getItemIdsByAttribute(string $attributeValue, string $attributeName, $options = [])
     {
         $mainTable = $this->tablename('catalog_product_entity');
         $joinTableName = $this->tablename('catalog_product_entity_varchar');
-        $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id WHERE $joinTableName.value = '$attributeValue'";
+        $attributeTable = $this->tablename('eav_attribute');
+
+        $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id AND $joinTableName.attribute_id = (SELECT attribute_id FROM $attributeTable where attribute_code = $attributeName) WHERE $joinTableName.value = '$attributeValue'";
 
         // debug:
         // print_r($query);die();
