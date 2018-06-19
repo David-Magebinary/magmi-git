@@ -1470,11 +1470,12 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $joinTableName = $this->tablename('catalog_product_entity_varchar');
         $attributeTable = $this->tablename('eav_attribute');
 
-        $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id AND $joinTableName.attribute_id = (SELECT attribute_id FROM $attributeTable where attribute_code = $attributeName) WHERE $joinTableName.value = '$attributeValue'";
+        $query  = "SELECT DISTINCT sku, $mainTable.entity_id as pid, attribute_set_id as asid, created_at, updated_at, type_id as type FROM $mainTable left join $joinTableName on $mainTable.entity_id = $joinTableName.entity_id AND $joinTableName.attribute_id = (SELECT attribute_id FROM $attributeTable where attribute_code = '$attributeName') WHERE $joinTableName.value = '$attributeValue'";
 
         // debug:
         // print_r($query);die();
         $result = $this->selectAll($query);
+
         if (count($result)) {
             $pids = $result[0];
             $pids["__new"] = false;
