@@ -1487,7 +1487,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
                 'sku',
                 'rrp',
                 'price',
-                'msrp',
                 'qty',
                 'supplier_code',
                 'categories',
