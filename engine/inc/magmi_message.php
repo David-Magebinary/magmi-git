@@ -36,7 +36,7 @@ class Magmi_Message
     public static function sendMail($message)
     {
         if (isset($message)) {
-            $receivers = ["david@magebinary.com", "adel@magebinary.com", "paulplaytech@gmail.com"];
+            $receivers = ["david@magebinary.com", "adel@magebinary.com", "pricefeed@playtech.co.nz"];
 
             foreach ($receivers as $to) {
                 $subject = date('Y-M-D-H-I-S') . "-vendor-import-report";
