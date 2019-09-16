@@ -191,12 +191,12 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         // Check for qty attributes
         $scols = array_intersect($cols, $this->getStockCols());
         $sql = "SELECT " . implode(",", $scols) . " FROM " . $this->tablename("cataloginventory_stock_item") . " WHERE product_id=?";
+
         $tdata = $this->selectAll($sql, array($params["product_id"]));
         if (count($tdata) > 0)
         {
             $out = array_merge($out, $tdata[0]);
         }
-
         unset($idcodemap);
         unset($bta);
         return $out;
@@ -1475,6 +1475,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         // debug:
         // print_r($query);die();
         $result = $this->selectAll($query);
+        // print_r($result);die();
 
         if (count($result)) {
             $pids = $result[0];
