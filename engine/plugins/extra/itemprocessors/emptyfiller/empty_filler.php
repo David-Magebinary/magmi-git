@@ -42,7 +42,7 @@ class EmptyFiller extends Magmi_ItemProcessor
 
         foreach ($attributes as $attribute) {
             if (isset($magentoValue[$attribute]) && $magentoValue[$attribute] != '') {
-                unset($item[$attribute]);
+                $item[$attribute] = $magentoValue[$attribute];
             }
         }
         return true;
