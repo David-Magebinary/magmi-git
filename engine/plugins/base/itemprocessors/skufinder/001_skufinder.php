@@ -77,6 +77,7 @@ class SkuFinderItemProcessor extends Magmi_ItemProcessor
                 return false;
             } else {
                 $item["sku"] = $result["sku"];
+                $this->log("Sku" . $result["sku"] . " match $matchfield value : " . $item[$matchfield], "info");
             }
             $n++;
         }
