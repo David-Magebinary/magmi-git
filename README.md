@@ -1,6 +1,11 @@
 [![Join the chat at https://gitter.im/dweeves/magmi-git](https://badges.gitter.im/dweeves/magmi-git.svg)](https://gitter.im/dweeves/magmi-git?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FCTC7R3YUJVPQ)
 
+## Change log from MageBinary Team
+1. Renamed magmi folder to engine for security reason
+2. Added EmptyFiller plugin
+3. Added MultiSkuFinder plugin
+
 magmi-git 0.7.23
 ===
 
@@ -37,7 +42,7 @@ A sample .htaccess file has been provided under the same folder. Simply copy `.h
 Additionally, the following line might be needed in your Apache VirtualHost configuration (or .htccess) if using Apache's mod_proxy_fcgi:
 
      SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
-     
+
 #### .ini File Warning
 
 While the authentication protects your Magmi web interface from unauthorised logins, it doesn't protect you from a poorly configured server.
