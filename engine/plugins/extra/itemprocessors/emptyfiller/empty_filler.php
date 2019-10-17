@@ -8,7 +8,7 @@ class EmptyFiller extends Magmi_ItemProcessor
     {
         return array(
             "name"      => "Empty Value Filler",
-            "author"    => "MageBinary",
+            "author"    => "Siyu Qian",
             "version"   => "0.0.2",
             "url"       => 'http://wiki.magebinary.com'
         );
@@ -32,8 +32,9 @@ class EmptyFiller extends Magmi_ItemProcessor
         $attributes = explode(',', trim($this->getParam("EMF:attributecodes")));
         $itemData = $this->getItemIds($item);
 
+        // the product does not exist in the system, then empty filler logic should not be needed
         if (!$itemData || !isset($itemData['pid'])) {
-            return false;
+            return true;
         }
 
         $magentoValue = $this->getMagentoData($item, array('product_id' => $itemData['pid']));
