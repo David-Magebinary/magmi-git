@@ -17,6 +17,7 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
             'author'    => 'Siyu Qian',
             'version'   => '0.0.1',
             'url'       => 'http://wiki.magebinary.com'
+        );
     }
 
     public function getPluginParams($params)
@@ -34,7 +35,7 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
 
     public function processItemBeforeId(&$item, $params = null)
     {
-        $param = trim($this->getParam("MSKUF:matchfield");
+        $param = trim($this->getParam("MSKUF:matchfield"));
 
         // configuration is not set up
         if (!$param) {
