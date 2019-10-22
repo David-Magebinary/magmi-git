@@ -12,6 +12,7 @@ require_once(dirname(__DIR__) . "/inc/magmi_defs.php");
 /* use external file for db helper */
 require_once("magmi_engine.php");
 require_once("magmi_valueparser.php");
+require_once("magmi_message.php");
 
 /**
  *
@@ -126,6 +127,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
     public function log($data, $type = "info", $logger = null)
     {
         $prefix = ((strpos($type, 'warning') !== false || strpos($type, 'error') !== false) && isset($this->_curitemids['sku'])) ? "SKU " . $this->_curitemids['sku'] . " - " : '';
+        Magmi_Message::addMessage($data);
         parent::log($prefix . $data, $type, $logger);
     }
 
@@ -965,6 +967,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $this->callPlugins("datasources,general,itemprocessors", "afterImport");
         $this->log("Import Ended", "end");
         Magmi_StateManager::setState("idle");
+        Magmi_Message::getMessage();
 
         $timers = $this->_timecounter->getTimers();
         $f = fopen(Magmi_StateManager::getStateDir() . "/timings.txt", "w");
@@ -1455,6 +1458,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         $values = $this->filterkvarr($item, $columns);
         $sql = "INSERT INTO `$tname` (" . implode(",", $columns) . ") VALUES (" . $this->arr2values($columns) . ")";
         $lastid = $this->insert($sql, array_values($values));
+        $this->log(sprintf("Item #SKU: %s has been created" . '\r\n', $item['sku']), 'info');
         return $lastid;
     }
 

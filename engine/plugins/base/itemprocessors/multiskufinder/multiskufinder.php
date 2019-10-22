@@ -58,7 +58,7 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
                 continue;
             }
 
-            $attinfo = $this->getAttrInfo($matchfield);
+            $attrInfo = $this->getAttrInfo($matchfield);
             $attrVal = $item[$matchfield];
 
             $this->checkCompatibility($attrInfo, $matchfield);
@@ -70,6 +70,8 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
             }
 
             $productInfo = $this->getItemIdsByAttributeCode($attrVal, $matchfield);
+            $sku = $productInfo['sku'];
+            $rowNumber = $this->getCurrentRow();
 
             // If did not find the existing value, check next attribute code
             if (!$productInfo) {
@@ -85,8 +87,17 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
                 continue;
             }
 
-            $item['sku'] = $magentoValue['sku'];
-            $this->log("Sku" . $result["sku"] . " match $matchfield value : " . $item[$matchfield], "info");
+            $item['sku'] = $sku;
+            $this->log("ROW #$rowNumber: Product " . $sku . " match $matchfield value : " . $item[$matchfield], "info");
+
+            /**
+             * Fix issue to duplicate mapping product with the defined fields
+             * @see  errorOutput
+             * plugin;MultiSkuFinderItemProcessor;info:Multiple SKU Finder v0.0.1 - ROW #1: Product something-random match anyware_code value : 2L-1001P/C
+             * plugin;MultiSkuFinderItemProcessor;info:Multiple SKU Finder v0.0.1 - ROW #1: Product something-random match supplier_code value : 2L-5001P/C
+             */
+            // only run once per row, once the product has been found
+            break;
         }
     }
 
@@ -113,31 +124,31 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
         return false;
     }
 
-    public function checkCompatibility(array $attInfo, string $matchfield)
+    public function checkCompatibility($attrInfo, $matchfield)
     {
         if ($this->_compatibility == false) {
             // Checking attribute compatibility with sku matching
-            if ($attinfo == null) {
+            if ($attrInfo == null) {
                 $this->log("$matchfield is not a valid attribute", "error");
                 $item["__MAGMI_LAST__"] = 1;
                 return false;
             }
-            if ($attinfo["is_unique"] == 0 || $attinfo["is_global"] == 0) {
+            if ($attrInfo["is_unique"] == 0 || $attrInfo["is_global"] == 0) {
                 $this->log("sku matching attribute $matchfield must be unique & global scope");
                 $item["__MAGMI_LAST__"] = 1;
                 return false;
             }
 
-            if ($attinfo["backend_type"] == "static") {
-                $this->log("$matchfield is " . $attinfo["backend_type"] . ", it cannot be used as sku matching field.",
+            if ($attrInfo["backend_type"] == "static") {
+                $this->log("$matchfield is " . $attrInfo["backend_type"] . ", it cannot be used as sku matching field.",
                     "error");
                 $item["__MAGMI_LAST__"] = 1;
                 return false;
             }
 
-            if ($attinfo["frontend_input"] == "select" || $attinfo["frontend_input"] == "multiselect") {
+            if ($attrInfo["frontend_input"] == "select" || $attrInfo["frontend_input"] == "multiselect") {
                 $this->log(
-                    "$matchfield is " . $attinfo["frontend_input"] . ", it cannot be used as sku matching field.",
+                    "$matchfield is " . $attrInfo["frontend_input"] . ", it cannot be used as sku matching field.",
                     "error");
                 $item["__MAGMI_LAST__"] = 1;
                 return false;

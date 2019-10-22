@@ -2,8 +2,6 @@
 sftp-config.json
 *.sublime-project
 *.sublime-workspace
-/magmi/state/*
-!/magmi/state/dummy.txt
 /node_modules/*
 !/node_modules/bootstrap
 !/node_modules/font-awesome
@@ -13,3 +11,5 @@ sftp-config.json
 !/node_modules/popper.js
 /node_modules/popper.js/*
 !/node_modules/popper.js/dist
+/engine/conf/*
+/engine/state/*
