@@ -993,7 +993,7 @@ class Magmi_ProductImportEngine extends Magmi_Engine
 
     public function initImport($params)
     {
-        $this->log("MAGMI by dweeves - version:" . Magmi_Version::$version, "title");
+        // $this->log("MAGMI by dweeves - version:" . Magmi_Version::$version, "title");
         $this->log("Import Profile:$this->_profile", "startup");
         $this->log("Import Mode:$this->mode", "startup");
         $this->log("step:" . $this->getProp("GLOBAL", "step", 0.5) . "%", "step");

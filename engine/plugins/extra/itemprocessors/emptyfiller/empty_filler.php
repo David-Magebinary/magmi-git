@@ -1,5 +1,7 @@
 <?php
+
 /**
+ * @see  The file has been renamed with z as the first letter to make sure this plugin will be loaded as the last
  * Magmi update mode only fills content when the existing product does not have a value
  */
 class EmptyFiller extends Magmi_ItemProcessor
