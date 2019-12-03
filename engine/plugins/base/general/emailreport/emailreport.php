@@ -35,7 +35,7 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
         $engine = $this->_callers[0];
         $content = '';
         $datasource = $engine->getPluginInstanceByClassName('datasources', 'Magmi_CSVDataSource');
-        if ($datasource != null) {
+        if ($datasource) {
             $csvfile = $datasource->getParam('CSV:filename');
 
             $content .= '<html><body>';
@@ -43,15 +43,12 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
             $content .= sprintf('<b>Profile:</b> %s', $this->_params['profile']) . self::HTML_NEW_LINE;
             $content .= '<b>Messages:</b>' . self::HTML_NEW_LINE;
             $content .= sprintf('The import job for file %s is going to start.', $csvfile) . self::HTML_NEW_LINE;
-            $message .= '</body></html>';
+            $content .= '</body></html>';
 
             $this->addAttachment($csvfile);
         }
 
         $response = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"), $this->getParam("EMAILREP:from_alias", ""), "BinaryConnect before import notice", $content, $this->getAttachment());
-
-        // clean up the attachement array before sending out the next email
-        $this->_attach = [];
 
         if (!$response) {
             $this->log("Cannot send email", "error");
@@ -139,6 +136,8 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
         $email_message .= "--{$mime_boundary}--\n";
         $this->log("Sending report to : $to", "info");
         $ok = mail($to, $subject, $email_message, $headers);
+        // clean up the attachement array before sending out the next email
+        $this->_attach = [];
         return $ok;
     }
 
@@ -167,6 +166,7 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
     public function afterImport()
     {
         $eng = $this->_callers[0];
+        $csvfile = '';
         if ($this->getParam("EMAILREP:to", "") != "" && $this->getParam("EMAILREP:from", "") != "") {
             if ($this->getParam("EMAILREP:attachcsv", false) == true) {
                 $ds = $eng->getPluginInstanceByClassName("datasources", "Magmi_CSVDataSource");
@@ -176,16 +176,39 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
                 }
             }
 
-            if ($this->getParam("EMAILREP:attachlog", false) == true) {
-                // copy magmi report
-                $pfile = Magmi_StateManager::getProgressFile(true);
-                $this->addAttachment($pfile);
-            }
+            // if ($this->getParam("EMAILREP:attachlog", false) == true) {
+            //     // copy magmi report
+            //     $pfile = Magmi_StateManager::getProgressFile(true);
+            //     $this->addAttachment($pfile);
+            // }
 
-            $ok = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"),
-                $this->getParam("EMAILREP:from_alias", ""), $this->getParam("EMAILREP:subject", "Magmi import report"),
-                $this->getParam("EMAILREP:body", "report attached"), $this->_attach);
-            if (!$ok) {
+            // $ok = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"),
+            //     $this->getParam("EMAILREP:from_alias", ""), $this->getParam("EMAILREP:subject", "Magmi import report"),
+            //     $this->getParam("EMAILREP:body", "report attached"), $this->getAttachment());
+            // if (!$ok) {
+            //     $this->log("Cannot send email", "error");
+            // }
+        }
+
+        // if price alert plugin is working
+        if (file_exists(PriceChangeAlert::ALERT_FILE) && filesize(PriceChangeAlert::ALERT_FILE)) {
+            $content = '<html><body>';
+            $content .= sprintf('<b>Import Mode:</b> %s', $this->getMode()) . self::HTML_NEW_LINE;
+            $content .= sprintf('<b>Profile:</b> %s', $this->_params['profile']) . self::HTML_NEW_LINE;
+            $content .= '<b>Messages:</b>' . self::HTML_NEW_LINE;
+            $content .= sprintf('The import job for the file %s is finished.', $csvfile) . self::HTML_NEW_LINE;
+            $content .= '</body></html>';
+            $this->addAttachment(PriceChangeAlert::ALERT_FILE);
+            $response = $this->send_email(
+                $this->getParam("EMAILREP:to"),
+                $this->getParam("EMAILREP:from"),
+                $this->getParam("EMAILREP:from_alias", ""),
+                "BinaryConnect Significant Price Change Alert",
+                $content,
+                $this->getAttachment()
+            );
+
+            if (!$response) {
                 $this->log("Cannot send email", "error");
             }
         }
