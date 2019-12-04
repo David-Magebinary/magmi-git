@@ -71,6 +71,11 @@ class PriceChangeAlert extends Magmi_ItemProcessor
             $prefix = trim($prefix);
             $priceColumnName = $prefix . "price";
             if (in_array($priceColumnName, array_keys($importData))) {
+                if (!isset($item[$priceColumnName]) || !isset($magentoValue[$priceColumnName])) {
+                    $this->log("Skipping price alert for #" . $this->getCurrentRow(), "warning");
+                    // if Magento does not have the value or the sheet is having issue
+                    return true;
+                }
                 $newValue = $item[$priceColumnName];
                 $origValue = $magentoValue[$priceColumnName];
             }

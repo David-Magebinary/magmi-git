@@ -14,6 +14,11 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
      */
     protected $_params;
 
+    /**
+     * @var string
+     */
+    protected $_startedTime;
+
     public function initialize($params)
     {
         $this->_attach = array();
@@ -26,12 +31,14 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
             "name"      => "Import Report Mail Notifier",
             "author"    => "David Qian",
             "version"   => "1.1.0",
-            "url"       =>  $this->pluginDocUrl("Import_report_mail_notifier")
+            "url"       => "https://wiki.magebinary.com/"
         );
     }
 
     public function beforeImport()
     {
+        $timestamp = new DateTime(null, new DateTimeZone('Pacific/Auckland'));
+        $this->_startedTime = $timestamp->format('Y-m-d H:i:s');
         $engine = $this->_callers[0];
         $content = '';
         $datasource = $engine->getPluginInstanceByClassName('datasources', 'Magmi_CSVDataSource');
@@ -41,11 +48,17 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
             $content .= '<html><body>';
             $content .= sprintf('<b>Import Mode:</b> %s', $this->getMode()) . self::HTML_NEW_LINE;
             $content .= sprintf('<b>Profile:</b> %s', $this->_params['profile']) . self::HTML_NEW_LINE;
+            $content .= sprintf('<b>File Size:</b> %s', $this->sizeFormat(filesize($csvfile), 'MB') . 'MB') . self::HTML_NEW_LINE;
             $content .= '<b>Messages:</b>' . self::HTML_NEW_LINE;
             $content .= sprintf('The import job for file %s is going to start.', $csvfile) . self::HTML_NEW_LINE;
-            $content .= '</body></html>';
 
-            $this->addAttachment($csvfile);
+            if ($this->sizeFormat(filesize($csvfile), 'MB') < 12) {
+                $this->addAttachment($csvfile);
+            } else {
+                $content .= 'No attachement is available if the attachement size is larger than 12MB' . self::HTML_NEW_LINE;
+            }
+
+            $content .= '</body></html>';
         }
 
         $response = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"), $this->getParam("EMAILREP:from_alias", ""), "BinaryConnect before import notice", $content, $this->getAttachment());
@@ -166,28 +179,10 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
     public function afterImport()
     {
         $eng = $this->_callers[0];
-        $csvfile = '';
-        if ($this->getParam("EMAILREP:to", "") != "" && $this->getParam("EMAILREP:from", "") != "") {
-            if ($this->getParam("EMAILREP:attachcsv", false) == true) {
-                $ds = $eng->getPluginInstanceByClassName("datasources", "Magmi_CSVDataSource");
-                if ($ds != null) {
-                    $csvfile = $ds->getParam("CSV:filename");
-                    $this->addAttachment($csvfile);
-                }
-            }
-
-            // if ($this->getParam("EMAILREP:attachlog", false) == true) {
-            //     // copy magmi report
-            //     $pfile = Magmi_StateManager::getProgressFile(true);
-            //     $this->addAttachment($pfile);
-            // }
-
-            // $ok = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"),
-            //     $this->getParam("EMAILREP:from_alias", ""), $this->getParam("EMAILREP:subject", "Magmi import report"),
-            //     $this->getParam("EMAILREP:body", "report attached"), $this->getAttachment());
-            // if (!$ok) {
-            //     $this->log("Cannot send email", "error");
-            // }
+        $datasource = $eng->getPluginInstanceByClassName("datasources", "Magmi_CSVDataSource");
+        if ($datasource) {
+            $csvfile = $datasource->getParam("CSV:filename");
+            $this->addAttachment($csvfile);
         }
 
         // if price alert plugin is working
@@ -195,10 +190,16 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
             $content = '<html><body>';
             $content .= sprintf('<b>Import Mode:</b> %s', $this->getMode()) . self::HTML_NEW_LINE;
             $content .= sprintf('<b>Profile:</b> %s', $this->_params['profile']) . self::HTML_NEW_LINE;
+            $content .= sprintf('<b>File Size:</b> %s', $this->sizeFormat(filesize($csvfile), 'MB') . 'MB') . self::HTML_NEW_LINE;
             $content .= '<b>Messages:</b>' . self::HTML_NEW_LINE;
             $content .= sprintf('The import job for the file %s is finished.', $csvfile) . self::HTML_NEW_LINE;
+            if ($this->sizeFormat(filesize(PriceChangeAlert::ALERT_FILE), 'MB') < 12) {
+                $this->addAttachment(PriceChangeAlert::ALERT_FILE);
+            } else {
+                $content .= 'No attachement is available if the attachement size is larger than 12MB' . self::HTML_NEW_LINE;
+            }
             $content .= '</body></html>';
-            $this->addAttachment(PriceChangeAlert::ALERT_FILE);
+
             $response = $this->send_email(
                 $this->getParam("EMAILREP:to"),
                 $this->getParam("EMAILREP:from"),
@@ -212,5 +213,52 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
                 $this->log("Cannot send email", "error");
             }
         }
+
+        // work with Message class
+        $message = Magmi_Message::getMessage();
+
+        if ($message) {
+            $this->addAttachment($csvfile);
+            $timestamp = new DateTime(null, new DateTimeZone('Pacific/Auckland'));
+            $subject = $timestamp->format('Y-m-d-H-i-s') . "-vendor-import-report";
+            $content = '<html><body>';
+            if ($this->sizeFormat(filesize($csvfile), 'MB') < 12) {
+                $this->addAttachment($csvfile);
+            } else {
+                $content .= 'No attachement is available if the attachement size is larger than 12MB' . self::HTML_NEW_LINE;
+            }
+            $content .= sprintf('<b>Started At:</b> %s', $this->_startedTime) . self::HTML_NEW_LINE;
+            $content .= sprintf('<b>Ended At:</b> %s', $timestamp->format('Y-m-d H:i:s')) . self::HTML_NEW_LINE;
+            $content .= '<b>Messages:</b>' . self::HTML_NEW_LINE;
+            $message = str_replace('Magmi', 'BinaryConnect', $message);
+            $message = str_replace('wiki.magmi.org', 'wiki.magebinary.com', $message);
+            $content .= nl2br($message);
+            $content .= '</body></html>';
+            $response = $this->send_email(
+                $this->getParam("EMAILREP:to"),
+                $this->getParam("EMAILREP:from"),
+                $this->getParam("EMAILREP:from_alias", ""),
+                $subject,
+                $content,
+                $this->getAttachment()
+            );
+        }
+    }
+
+    function sizeFormat($bytes, $unit = "", $decimals = 2) {
+        $units = array('B' => 0, 'KB' => 1, 'MB' => 2, 'GB' => 3, 'TB' => 4, 'PB' => 5, 'EB' => 6, 'ZB' => 7, 'YB' => 8);
+
+        $value = 0;
+        if ($bytes > 0) {
+            if (!array_key_exists($unit, $units)) {
+                $pow = floor(log($bytes)/log(1024));
+                $unit = array_search($pow, $units);
+            }
+            $value = ($bytes / pow(1024, floor($units[$unit])));
+        }
+        if (!is_numeric($decimals) || $decimals < 0) {
+            $decimals = 2;
+        }
+        return sprintf('%.' . $decimals . 'f ', $value);
     }
 }

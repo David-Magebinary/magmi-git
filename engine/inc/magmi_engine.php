@@ -444,8 +444,8 @@ abstract class Magmi_Engine extends DbHelper
             $f = fopen(Magmi_StateManager::getTraceFile(), "w");
             fclose($f);
             $enginf = $this->getEngineInfo();
-            $this->log("MAGMI by dweeves - version:" . Magmi_Version::$version, "title");
-            $this->log("Running {$enginf["name"]} v${enginf["version"]} by ${enginf["author"]}", "startup");
+            // $this->log("MAGMI by dweeves - version:" . Magmi_Version::$version, "title");
+            // $this->log("Running {$enginf["name"]} v${enginf["version"]} by ${enginf["author"]}", "startup");
             if (!$this->_initialized) {
                 $this->initialize($params);
             }
