@@ -58,7 +58,7 @@ class PriceChangeAlert extends Magmi_ItemProcessor
         }
 
         $importData = $item;
-        $header = ['sku', 'orig_price', 'new_price', 'changes', 'timestamp'];
+        $header = ['sku', 'supplier_code', 'orig_price', 'new_price', 'changes', 'timestamp'];
 
         $fileFolder = "/tmp/magmi";
 
@@ -95,7 +95,7 @@ class PriceChangeAlert extends Magmi_ItemProcessor
             if (!filesize(self::ALERT_FILE)) {
                 fputcsv($fileHandler, $header);
             }
-            $alertRow = [ $importData['sku'], $origValue, $newValue, $precentage, $timestamp->format('Y-m-d H:i:s') ];
+            $alertRow = [ $importData['sku'], $importData['supplier_code'], $origValue, $newValue, $precentage, $timestamp->format('Y-m-d H:i:s') ];
             fputcsv($fileHandler, $alertRow);
 
             // need to skip the update of the price attributes
