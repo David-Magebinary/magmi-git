@@ -15,3 +15,13 @@
         </div>
     </li>
 </ul>
+
+<ul class="formline">
+    <li class="label"><span>Skipping</span></li>
+    <li class="value">
+        <input type="text" name="PCA:skipping" value="<?php echo $this->getParam("PCA:skipping", "")?>">
+        <div class="fieldinfo">
+            Skip field if it is "1" and default value is "1"
+        </div>
+    </li>
+</ul>

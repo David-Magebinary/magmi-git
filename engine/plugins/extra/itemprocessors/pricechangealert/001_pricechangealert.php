@@ -7,6 +7,11 @@ class PriceChangeAlert extends Magmi_ItemProcessor
     const ALERT_FILE = '/tmp/magmi/priceAlert.csv';
     const THRESHOLD = 0.2;
 
+    /**
+     * @var string
+     */
+    protected $_priceColumnName;
+
     public function getPluginInfo()
     {
         return array(
@@ -76,6 +81,7 @@ class PriceChangeAlert extends Magmi_ItemProcessor
                     // if Magento does not have the value or the sheet is having issue
                     return true;
                 }
+                $this->_priceColumnName = $priceColumnName;
                 $newValue = $item[$priceColumnName];
                 $origValue = $magentoValue[$priceColumnName];
             }
@@ -91,6 +97,11 @@ class PriceChangeAlert extends Magmi_ItemProcessor
             }
             $alertRow = [ $importData['sku'], $origValue, $newValue, $precentage, $timestamp->format('Y-m-d H:i:s') ];
             fputcsv($fileHandler, $alertRow);
+
+            // need to skip the update of the price attributes
+            if ($this->getParam('PCA:skipping', 1)) {
+                $item[$this->_priceColumnName] = $origValue;
+            }
         }
 
         fclose($fileHandler);
