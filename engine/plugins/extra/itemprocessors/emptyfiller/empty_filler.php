@@ -43,9 +43,32 @@ class EmptyFiller extends Magmi_ItemProcessor
 
         foreach ($attributes as $attribute) {
             if (isset($magentoValue[$attribute]) && $magentoValue[$attribute] != '') {
+                $magentoValue = $this->replaceOptionIdWithValue($attribute, $magentoValue);
                 $item[$attribute] = $magentoValue[$attribute];
             }
         }
         return true;
+    }
+
+    public function replaceOptionIdWithValue(string $attribute, array $magentoValue)
+    {
+        // Dirty fix: double handle for the attribute type
+        $tableName = $this->tablename("eav_attribute");
+        $extra = $this->tablename("catalog_eav_attribute");
+                // SQL for selecting attribute properties for all wanted attributes
+        $sql = "SELECT `$tableName`.*,$extra.* FROM `$tableName`
+        LEFT JOIN $extra ON $tableName.attribute_id=$extra.attribute_id
+        WHERE  ($tableName.attribute_code=?) AND (entity_type_id=?) ORDER BY $tableName.attribute_id";
+
+        $attrInfo = current($this->selectAll($sql, array($attribute, 4)));
+                // attribute is dropdown, get the text value
+        if ($attrInfo['source_model'] == 'eav/entity_attribute_source_table') {
+            $tableName = $this->tablename('eav_attribute_option_value');
+            $sql = "SELECT `$tableName`.value FROM `$tableName` WHERE ($tableName.option_id=?)";
+            $optionValue = current($this->selectAll($sql, array($magentoValue[$attribute])))['value'];
+            $magentoValue[$attribute] = $optionValue;
+        }
+
+        return $magentoValue;
     }
 }
