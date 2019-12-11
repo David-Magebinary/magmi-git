@@ -8,6 +8,11 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
     protected $_compatibility = false;
 
     /**
+     * @var boolean
+     */
+    protected $_debug = false;
+
+    /**
      * Display plugin basic information
      */
     public function getPluginInfo()
@@ -88,7 +93,9 @@ class MultiSkuFinderItemProcessor extends Magmi_ItemProcessor
             }
 
             $item['sku'] = $sku;
-            $this->log("ROW #$rowNumber: Product " . $sku . " match $matchfield value : " . $item[$matchfield], "info");
+            if ($this->_debug) {
+                $this->log("ROW #$rowNumber: Product " . $sku . " match $matchfield value : " . $item[$matchfield], "info");
+            }
 
             /**
              * Fix issue to duplicate mapping product with the defined fields
