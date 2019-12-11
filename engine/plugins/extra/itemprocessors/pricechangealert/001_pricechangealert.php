@@ -77,8 +77,8 @@ class PriceChangeAlert extends Magmi_ItemProcessor
             $priceColumnName = $prefix . "price";
             if (in_array($priceColumnName, array_keys($importData))) {
                 if (!isset($item[$priceColumnName]) || !isset($magentoValue[$priceColumnName])) {
-                    $this->log(json_encode($item), "info");
-                    $this->log(json_encode($magentoValue), "info");
+                    // $this->log(json_encode($item), "info");
+                    // $this->log(json_encode($magentoValue), "info");
                     $this->log(sprintf("%s field is not existing in Magento or Imported CSV file. Skipping price alert for #%i", $priceColumnName, $this->getCurrentRow()), "warning");
                     // if Magento does not have the value or the sheet is having issue
                     return true;
