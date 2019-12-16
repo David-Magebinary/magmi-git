@@ -127,7 +127,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
     public function log($data, $type = "info", $logger = null)
     {
         $prefix = ((strpos($type, 'warning') !== false || strpos($type, 'error') !== false) && isset($this->_curitemids['sku'])) ? "SKU " . $this->_curitemids['sku'] . " - " : '';
-        Magmi_Message::addMessage($data);
         parent::log($prefix . $data, $type, $logger);
     }
 
@@ -967,7 +966,6 @@ class Magmi_ProductImportEngine extends Magmi_Engine
         // $this->callPlugins("datasources,general,itemprocessors", "afterImport");
         $this->log("Import Ended", "end");
         Magmi_StateManager::setState("idle");
-        Magmi_Message::getMessage();
 
         $timers = $this->_timecounter->getTimers();
         $f = fopen(Magmi_StateManager::getStateDir() . "/timings.txt", "w");
