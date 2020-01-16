@@ -228,9 +228,10 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
 
         if ($message) {
             $this->addAttachment($csvfile);
+            // dirty fix
             $vendorName = $this->getVendorName($csvfile);
             $timestamp = new DateTime(null, new DateTimeZone('Pacific/Auckland'));
-            $subject = $timestamp->format('Y-m-d-H-i-s') . '-' . $vendorName . "-vendor-import-report";
+            $subject = $timestamp->format('Y-m-d-H-i-s') . '-' . $vendorName . "-import-report";
             $content = '<html><body>';
 
             if ($this->sizeFormat(filesize($csvfile), 'MB') < 12) {
@@ -264,7 +265,12 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
         }
     }
 
-    protected function getVendorName($filename)
+    /**
+     * getVendorName
+     * @param  string $filename
+     * @return string
+     */
+    protected function getVendorName(string $filename)
     {
         $filename = basename($filename);
         $withoutExt = preg_replace('/\\.[^.\\s]{3,4}$/', '', $filename);

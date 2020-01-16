@@ -90,6 +90,7 @@ class PriceChangeAlert extends Magmi_ItemProcessor
         $ratio = abs($newValue - $origValue) / $origValue;
         $precentage = round($ratio * 100, 2) . "%";
         $timestamp = new DateTime(null, new DateTimeZone('Pacific/Auckland'));
+
         if ($ratio > $threshold) {
             // your file is empty
             if (!filesize(self::ALERT_FILE)) {

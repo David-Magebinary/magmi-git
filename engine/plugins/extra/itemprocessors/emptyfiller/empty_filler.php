@@ -29,6 +29,14 @@ class EmptyFiller extends Magmi_ItemProcessor
         return $pp;
     }
 
+
+    /**
+     * processItemBeforeId
+     * Check the current value in the Magento system, if the value already existed in the system
+     * @param  string &$item
+     * @param  mixed $params
+     * @return boolean
+     */
     public function processItemBeforeId(&$item, $params = null)
     {
         $attributes = explode(',', trim($this->getParam("EMF:attributecodes")));
