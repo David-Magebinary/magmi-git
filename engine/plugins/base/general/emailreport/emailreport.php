@@ -73,7 +73,7 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
             $content .= '</body></html>';
         }
 
-        $response = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"), $this->getParam("EMAILREP:from_alias", ""), "BinaryConnect before import notice", $content, $this->getAttachment());
+        $response = $this->send_email($this->getParam("EMAILREP:to"), $this->getParam("EMAILREP:from"), $this->getParam("EMAILREP:from_alias", ""), "BinaryConnect before import notice - " . strtoupper($vendorName) , $content, $this->getAttachment());
 
         if (!$response) {
             $this->log("Cannot send email", "error");
@@ -199,6 +199,7 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
 
         // if price alert plugin is working
         if (file_exists(PriceChangeAlert::ALERT_FILE) && filesize(PriceChangeAlert::ALERT_FILE)) {
+            $vendorName = $this->getVendorName($csvfile);
             $content = $this->buildEmailHeaderContent($csvfile);
             $content .= sprintf('The import job for the file %s is finished.', $csvfile) . self::HTML_NEW_LINE;
             if ($this->sizeFormat(filesize(PriceChangeAlert::ALERT_FILE), 'MB') < 12) {
@@ -212,7 +213,7 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
                 $this->getParam("EMAILREP:to"),
                 $this->getParam("EMAILREP:from"),
                 $this->getParam("EMAILREP:from_alias", ""),
-                "BinaryConnect Significant Price Change Alert",
+                "BinaryConnect Significant Price Change Alert - " . strtoupper($vendorName),
                 $content,
                 $this->getAttachment()
             );
@@ -228,7 +229,6 @@ class EmailReportPlugin extends Magmi_GeneralImportPlugin
 
         if ($message) {
             $this->addAttachment($csvfile);
-            // dirty fix
             $vendorName = $this->getVendorName($csvfile);
             $timestamp = new DateTime(null, new DateTimeZone('Pacific/Auckland'));
             $subject = $timestamp->format('Y-m-d-H-i-s') . '-' . $vendorName . "-import-report";
